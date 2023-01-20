@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <WinSerial/WinSerial.h>
+#include "CommThread.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,8 +32,11 @@ private slots:
 
     void send_to_printer(const QString& str);
 
+    void byte_received(std::uint8_t);
+
 private:
     Ui::PrintRolWindow* ui;
     WinSerial serial_;
+    CommThread comm_thrd_;
 };
 #endif  // PRINTROLWINDOW_H

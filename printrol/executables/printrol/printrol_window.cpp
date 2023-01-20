@@ -12,6 +12,10 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(ui->portConnectButton, &QPushButton::clicked, this, &PrintRolWindow::connect_to_port);
     connect(ui->portDisconnectButton, &QPushButton::clicked, this, &PrintRolWindow::disconnect_port);
     connect(ui->inputTextEdit, &QTextEdit::textChanged, this, &PrintRolWindow::user_txt_input);
+    connect(&comm_thrd_, &CommThread::byte_received, this, &PrintRolWindow::byte_received);
+
+    comm_thrd_.set_serial(&serial_);
+    comm_thrd_.start(QThread::NormalPriority);
 
     refresh_ports();
     update_port_label();
@@ -74,4 +78,11 @@ void PrintRolWindow::send_to_printer(const QString& qstr) {
     std::string stdstr = qstr.toStdString();
 
     serial_.write(stdstr.c_str(), stdstr.length());
+}
+
+void PrintRolWindow::byte_received(std::uint8_t b) {
+    char c = static_cast<char>(b);
+    QString str;
+    str += c;
+    ui->historyTextEdit->insertPlainText(str);
 }

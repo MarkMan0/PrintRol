@@ -2,7 +2,7 @@
 #define PRINTROLWINDOW_H
 
 #include <QMainWindow>
-#include <WinSerial/WinSerial.h>
+#include <ISerial/ISerial.h>
 #include "CommThread.h"
 
 QT_BEGIN_NAMESPACE
@@ -18,6 +18,12 @@ public:
     PrintRolWindow(QWidget* parent = nullptr);
     ~PrintRolWindow();
 
+    void init();
+
+    void set_serial(ISerial* serial) {
+        serial_ = serial;
+    }
+
 private slots:
 
     void refresh_ports();
@@ -31,7 +37,7 @@ private slots:
 
 private:
     Ui::PrintRolWindow* ui;
-    WinSerial serial_;
+    ISerial* serial_;
     CommThread comm_thrd_;
 };
 #endif  // PRINTROLWINDOW_H

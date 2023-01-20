@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DUNICODE -D_UNICODE)
 
+if (WIN32)
+    add_definitions(-DWIN32)
+endif()
+
 # from QT
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)

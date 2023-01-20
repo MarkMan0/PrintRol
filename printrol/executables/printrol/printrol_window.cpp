@@ -13,8 +13,10 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(ui->inputLineEdit, &QLineEdit::returnPressed, this, &PrintRolWindow::user_txt_input);
     connect(&comm_thrd_, &CommThread::byte_received, this, &PrintRolWindow::byte_received);
     connect(ui->portSelectBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
+}
 
-    comm_thrd_.set_serial(&serial_);
+void PrintRolWindow::init() {
+    comm_thrd_.set_serial(serial_);
     comm_thrd_.start(QThread::NormalPriority);
 
     refresh_ports();
@@ -26,7 +28,7 @@ PrintRolWindow::~PrintRolWindow() {
 }
 
 void PrintRolWindow::refresh_ports() {
-    auto ports = serial_.list_ports();
+    auto ports = serial_->list_ports();
 
     ui->portSelectBox->clear();
     for (const auto& port : ports) {
@@ -43,18 +45,18 @@ void PrintRolWindow::connect_to_port() {
         return;
     }
 
-    serial_.open(current_port.toStdWString(), 115200);
+    serial_->open(current_port.toStdWString(), 115200);
     update_port_label();
 }
 
 void PrintRolWindow::disconnect_port() {
-    serial_.close();
+    serial_->close();
     update_port_label();
 }
 
 
 void PrintRolWindow::update_port_label() {
-    ui->portStatusLabel->setText(serial_.is_open() ? "Connected" : "Disconnected");
+    ui->portStatusLabel->setText(serial_->is_open() ? "Connected" : "Disconnected");
 }
 
 
@@ -69,12 +71,12 @@ void PrintRolWindow::user_txt_input() {
 }
 
 void PrintRolWindow::send_to_printer(const QString& qstr) {
-    if (not serial_.is_open()) {
+    if (not serial_->is_open()) {
         return;
     }
     std::string stdstr = qstr.toStdString();
 
-    serial_.write(stdstr.c_str(), stdstr.length());
+    serial_->write(stdstr.c_str(), stdstr.length());
 }
 
 void PrintRolWindow::byte_received(std::uint8_t b) {

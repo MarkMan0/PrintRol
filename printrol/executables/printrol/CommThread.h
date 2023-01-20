@@ -2,7 +2,7 @@
 
 #include <QThread>
 #include <QAtomicInt>
-#include <WinSerial/WinSerial.h>
+#include <ISerial/ISerial.h>
 
 class CommThread : public QThread {
     Q_OBJECT
@@ -16,7 +16,7 @@ public:
         QThread::msleep(10);
     }
 
-    void set_serial(WinSerial* serial) {
+    void set_serial(ISerial* serial) {
         serial_ = serial;
     }
 
@@ -52,6 +52,6 @@ private:
         }
     }
 
-    WinSerial* serial_{ nullptr };
+    ISerial* serial_{ nullptr };
     QAtomicInt abort_{ 0 }, running_{ 0 };
 };

@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <ComList/ComList.h>
 
 PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::PrintRolWindow) {
     ui->setupUi(this);
@@ -27,13 +26,11 @@ PrintRolWindow::~PrintRolWindow() {
 }
 
 void PrintRolWindow::refresh_ports() {
-    // TODO: get list of actual ports
-    auto ports = get_com_ports();
+    auto ports = serial_.list_ports();
 
     ui->portSelectBox->clear();
     for (const auto& port : ports) {
-        auto qstr = QString::fromStdWString(port.port_str_);
-        qstr.remove(0, 4);
+        auto qstr = QString::fromStdWString(port);
         ui->portSelectBox->addItem(qstr);
     }
 }
@@ -41,14 +38,12 @@ void PrintRolWindow::refresh_ports() {
 
 void PrintRolWindow::connect_to_port() {
     auto current_port = ui->portSelectBox->currentText();
-    if (current_port.length() < 4) {
+    if (current_port.length() < 1) {
         //  not valid COMx text
         return;
     }
-    current_port.remove(0, 3);
-    int port_no = current_port.toInt();
 
-    serial_.open(port_no, 115200);
+    serial_.open(current_port.toStdWString(), 115200);
     update_port_label();
 }
 

@@ -2,21 +2,24 @@
 
 #include <string_view>
 #include <Windows.h>
+#include <ISerial/ISerial.h>
 
-class WinSerial {
+class WinSerial final : public ISerial {
 public:
-    void open(int port, int baud);
+    void open(std::wstring port, int baud) override;
 
-    int write(const void* buff, int size);
-    int read(void* dest, int size);
+    int write(const void* buff, int size) override;
+    int read(void* dest, int size) override;
 
-    void flush();
+    void flush() override;
 
-    bool is_open() const;
+    bool is_open() const override;
 
-    void close();
+    void close() override;
 
-    ~WinSerial();
+    virtual ~WinSerial();
+
+    std::vector<std::wstring> list_ports() const override;
 
 private:
     HANDLE com_handle_{ INVALID_HANDLE_VALUE };

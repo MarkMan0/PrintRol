@@ -5,7 +5,7 @@
 #define INITGUID
 #include <tchar.h>
 #include <stdio.h>
-#include "ComList/ComList.h"
+#include "ComList.h"
 #include <string>
 #include <codecvt>
 
@@ -122,7 +122,6 @@ static std::wstring frinedly_to_port_name(const std::wstring& f) {
 
     std::wstring ret = f.substr(f.find('(') + 1);
     ret.pop_back();
-    ret = L"\\\\.\\" + ret;
     return ret;
 }
 

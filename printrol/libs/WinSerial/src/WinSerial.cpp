@@ -1,14 +1,15 @@
 #include "WinSerial/WinSerial.h"
 #include <string>
+#include "ComList.h"
 
-void WinSerial::open(int port, int baud) {
+void WinSerial::open(std::wstring port, int baud) {
     if (is_open()) {
         close();
     }
 
-    std::wstring port_str(L"//.////COM");
-    port_str += std::to_wstring(port);
-    com_handle_ = CreateFile(port_str.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+    port = L"\\.\\\\" + port;
+
+    com_handle_ = CreateFile(port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
     if (com_handle_ == INVALID_HANDLE_VALUE) return;
 
     GetCommTimeouts(com_handle_, &timeouts_old_);
@@ -77,4 +78,14 @@ void WinSerial::close() {
 
 WinSerial::~WinSerial() {
     close();
+}
+
+std::vector<std::wstring> WinSerial::list_ports() const {
+    const auto ports = get_com_ports();
+    std::vector<std::wstring> ret;
+    for (const auto& p : ports) {
+        ret.emplace_back(p.port_str_);
+    }
+
+    return ret;
 }

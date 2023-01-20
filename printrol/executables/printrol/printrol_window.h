@@ -2,6 +2,7 @@
 #define PRINTROLWINDOW_H
 
 #include <QMainWindow>
+#include <WinSerial/WinSerial.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,7 +17,18 @@ public:
     PrintRolWindow(QWidget* parent = nullptr);
     ~PrintRolWindow();
 
+private slots:
+
+    void refresh_ports();
+
+    void connect_to_port();
+
+    void disconnect_port();
+
+    void update_port_label();
+
 private:
     Ui::PrintRolWindow* ui;
+    WinSerial serial_;
 };
 #endif  // PRINTROLWINDOW_H

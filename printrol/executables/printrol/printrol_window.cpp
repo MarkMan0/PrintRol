@@ -11,6 +11,7 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(ui->portRefreshButton, &QPushButton::clicked, this, &PrintRolWindow::refresh_ports);
     connect(ui->portConnectButton, &QPushButton::clicked, this, &PrintRolWindow::connect_to_port);
     connect(ui->portDisconnectButton, &QPushButton::clicked, this, &PrintRolWindow::disconnect_port);
+    connect(ui->inputTextEdit, &QTextEdit::textChanged, this, &PrintRolWindow::user_txt_input);
 
     refresh_ports();
     update_port_label();
@@ -54,4 +55,23 @@ void PrintRolWindow::disconnect_port() {
 
 void PrintRolWindow::update_port_label() {
     ui->portStatusLabel->setText(serial_.is_open() ? "Connected" : "Disconnected");
+}
+
+
+void PrintRolWindow::user_txt_input() {
+    auto txt = ui->inputTextEdit->toPlainText();
+
+    if (txt.length() > 0 && (txt.back() == '\n' || txt.back() == '\r')) {
+        send_to_printer(txt);
+        ui->inputTextEdit->clear();
+    }
+}
+
+void PrintRolWindow::send_to_printer(const QString& qstr) {
+    if (not serial_.is_open()) {
+        return;
+    }
+    std::string stdstr = qstr.toStdString();
+
+    serial_.write(stdstr.c_str(), stdstr.length());
 }

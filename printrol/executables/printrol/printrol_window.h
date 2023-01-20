@@ -27,6 +27,10 @@ private slots:
 
     void update_port_label();
 
+    void user_txt_input();
+
+    void send_to_printer(const QString& str);
+
 private:
     Ui::PrintRolWindow* ui;
     WinSerial serial_;

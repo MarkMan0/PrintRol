@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.23.0)
 project(PrintRol VERSION 0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-DUNICODE)
+add_definitions(-DUNICODE -D_UNICODE)
 
 # from QT
 set(CMAKE_AUTOUIC ON)

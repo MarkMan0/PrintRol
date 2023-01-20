@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <ComList/ComList.h>
 
 PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::PrintRolWindow) {
     ui->setupUi(this);
@@ -21,16 +22,13 @@ PrintRolWindow::~PrintRolWindow() {
 
 void PrintRolWindow::refresh_ports() {
     // TODO: get list of actual ports
-    std::vector<QString> ports;
-    ports.push_back("COM0");
-    ports.push_back("COM1");
-    ports.push_back("COM9");
-    ports.push_back("COM10");
-    ports.push_back("COM11");
+    auto ports = get_com_ports();
 
     ui->portSelectBox->clear();
     for (const auto& port : ports) {
-        ui->portSelectBox->addItem(port);
+        auto qstr = QString::fromStdWString(port.port_str_);
+        qstr.remove(0, 4);
+        ui->portSelectBox->addItem(qstr);
     }
 }
 

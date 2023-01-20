@@ -35,7 +35,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QTextEdit" name="inputTextEdit">
+      <widget class="QLineEdit" name="inputLineEdit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
          <horstretch>0</horstretch>
@@ -47,21 +47,6 @@
          <width>16777215</width>
          <height>26</height>
         </size>
-       </property>
-       <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="undoRedoEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="lineWrapMode">
-        <enum>QTextEdit::NoWrap</enum>
-       </property>
-       <property name="acceptRichText">
-        <bool>false</bool>
        </property>
       </widget>
      </item>

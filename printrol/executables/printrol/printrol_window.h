@@ -21,18 +21,13 @@ public:
 private slots:
 
     void refresh_ports();
-
     void connect_to_port();
-
     void disconnect_port();
-
     void update_port_label();
-
     void user_txt_input();
-
     void send_to_printer(const QString& str);
-
     void byte_received(std::uint8_t);
+    void enter_on_combobox();
 
 private:
     Ui::PrintRolWindow* ui;

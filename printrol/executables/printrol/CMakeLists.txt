@@ -35,7 +35,9 @@ endif()
 
 target_link_libraries(printrol_qt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-target_link_libraries(printrol_qt PUBLIC WinSerial)
+if (WIN32)
+    target_link_libraries(printrol_qt PUBLIC WinSerial)
+endif()
 
 set_target_properties(printrol_qt PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER "my.example.com"

@@ -13,6 +13,15 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(ui->inputLineEdit, &QLineEdit::returnPressed, this, &PrintRolWindow::user_txt_input);
     connect(&comm_thrd_, &CommThread::byte_received, this, &PrintRolWindow::byte_received);
     connect(ui->portSelectBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
+    connect(ui->portBaudComboBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
+
+    const auto baud_list = { 9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000, 1000000 };
+
+    for (auto baud : baud_list) {
+        ui->portBaudComboBox->addItem(QString::number(baud));
+    }
+
+    ui->portBaudComboBox->setCurrentIndex(5);
 }
 
 void PrintRolWindow::init() {
@@ -45,7 +54,12 @@ void PrintRolWindow::connect_to_port() {
         return;
     }
 
-    serial_->open(current_port.toStdWString(), 115200);
+    int baud = ui->portBaudComboBox->currentText().toInt();
+    if (baud == 0) {
+        baud = 115200;
+    }
+
+    serial_->open(current_port.toStdWString(), baud);
     update_port_label();
 }
 

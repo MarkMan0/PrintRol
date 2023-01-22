@@ -8,6 +8,10 @@ public:
     using temp_t = std::vector<float>;
     using pos_t = std::vector<float>;
 
+    PrinterMonitor() {
+        reset();
+    }
+
     void parse_line(std::string_view line);
 
     // position
@@ -46,6 +50,10 @@ public:
 
 private:
     void reset();
+
+    void parse_position();
+
+    std::string current_line_;
 
     pos_t position_;
     bool position_known_;

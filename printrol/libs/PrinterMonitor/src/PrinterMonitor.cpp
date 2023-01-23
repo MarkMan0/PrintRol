@@ -2,6 +2,7 @@
 #include <regex>
 #include <array>
 #include <tuple>
+#include <sstream>
 
 void PrinterMonitor::reset() {
     position_.clear();
@@ -55,20 +56,29 @@ void PrinterMonitor::parse_position() {
 void PrinterMonitor::parse_temperature() {
     const std::string num_matcher = "(\\d*.?\\d*) \\/(\\d*.?\\d*)";
 
+    const bool has_multi_hotend = current_line_.find("T0:") != std::string::npos;
+
     // matcher
-    auto match = [&num_matcher, this](char prefix_1, char prefix_2) -> temp_t {
+    auto match = [&num_matcher, this](char prefix_1, char prefix_2, int hotend_num = -1) -> temp_t {
         std::smatch m;
         std::string actual, target, power;
-        std::string rgx1;
-        rgx1 += prefix_1;
-        rgx1 += ":" + num_matcher;
-        std::string rgx2;
-        rgx2 += prefix_2;
-        rgx2 += "@:(\\d*)";
-        if (std::regex_search(current_line_, m, std::regex(rgx1)) && m.size() > 2) {
+
+        std::stringstream ss1;
+        ss1 << prefix_1;
+        if (hotend_num != -1) {
+            ss1 << hotend_num;
+        }
+        ss1 << ":" << num_matcher;
+        std::stringstream ss2;
+        ss2 << prefix_2 << "@";
+        if (hotend_num != -1) {
+            ss2 << hotend_num;
+        }
+        ss2 << ":(\\d*)";
+        if (std::regex_search(current_line_, m, std::regex(ss1.str())) && m.size() > 2) {
             actual = m[1];
             target = m[2];
-            if (std::regex_search(current_line_, m, std::regex(rgx2)) && m.size() > 1) {
+            if (std::regex_search(current_line_, m, std::regex(ss2.str())) && m.size() > 1) {
                 power = m[1];
             } else {
                 power = "0";
@@ -81,7 +91,19 @@ void PrinterMonitor::parse_temperature() {
         }
     };
 
-    // match hotend (T)
+    hotend_temps_.clear();
+    // check multiple hotends
+    int i = 0;
+    while (1) {
+        // push back hotends while they exist
+        auto ret = match('T', ' ', i++);
+        if (ret.size()) {
+            hotend_temps_.push_back(ret);
+        } else {
+            break;
+        }
+    }
+    // will only match with single hotend systems
     hotend_temps_.push_back(match('T', ' '));
     bed_temp_ = match('B', 'B');
     chamber_temp_ = match('C', 'C');

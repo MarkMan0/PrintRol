@@ -105,3 +105,14 @@ TEST_F(PrinterMonitorTestTemperature, TestReset) {
     EXPECT_EQ(empty, mon.get_board_temp());
     EXPECT_EQ(empty, mon.get_redundant_temp());
 }
+
+TEST_F(PrinterMonitorTestTemperature, TestMultiHotend) {
+    mon.parse_line(" T0:112.23 /140.00 T1:268.45 /320.12 T2:20.12 /0.00 @0:14 @1:65 @2:0");
+
+    expected = { 112.23, 140, 14 };
+    EXPECT_EQ(expected, mon.get_hotend_temp(0));
+    expected = { 268.45, 320.12, 65 };
+    EXPECT_EQ(expected, mon.get_hotend_temp(1));
+    expected = { 20.12, 0, 0 };
+    EXPECT_EQ(expected, mon.get_hotend_temp(2));
+}

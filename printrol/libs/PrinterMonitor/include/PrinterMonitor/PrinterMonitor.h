@@ -42,16 +42,32 @@ public:
         return bed_temp_;
     }
     temp_t get_hotend_temp(int index) const {
-        return hotend_temps_.at(index);
+        if (hotend_temps_.size() < index + 1) {
+            return {};
+        }
+        return hotend_temps_[index];
     }
     temp_t get_chamber_temp() const {
         return chamber_temp_;
+    }
+    temp_t get_probe_temp() const {
+        return probe_temp_;
+    }
+    temp_t get_cooler_temp() const {
+        return cooler_temp_;
+    }
+    temp_t get_board_temp() const {
+        return board_temp_;
+    }
+    temp_t get_redundant_temp() const {
+        return redundant_temp_;
     }
 
 private:
     void reset();
 
     void parse_position();
+    void parse_temperature();
 
     std::string current_line_;
 
@@ -63,4 +79,8 @@ private:
     std::vector<temp_t> hotend_temps_;
     temp_t bed_temp_;
     temp_t chamber_temp_;
+    temp_t probe_temp_;
+    temp_t cooler_temp_;
+    temp_t board_temp_;
+    temp_t redundant_temp_;
 };

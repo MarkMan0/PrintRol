@@ -14,6 +14,8 @@ public:
 
     void parse_line(std::string_view line);
 
+    void reset();
+
     // position
     pos_t get_position() const {
         return position_;
@@ -41,7 +43,7 @@ public:
     temp_t get_bed_temp() const {
         return bed_temp_;
     }
-    temp_t get_hotend_temp(int index) const {
+    temp_t get_hotend_temp(int index = 0) const {
         if (hotend_temps_.size() < index + 1) {
             return {};
         }
@@ -64,8 +66,6 @@ public:
     }
 
 private:
-    void reset();
-
     void parse_position();
     void parse_temperature();
 

@@ -12,6 +12,10 @@ void PrinterMonitor::reset() {
     hotend_temps_.clear();
     bed_temp_.clear();
     chamber_temp_.clear();
+    probe_temp_.clear();
+    cooler_temp_.clear();
+    board_temp_.clear();
+    redundant_temp_.clear();
 }
 
 void PrinterMonitor::parse_line(std::string_view line) {

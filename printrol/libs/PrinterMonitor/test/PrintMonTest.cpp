@@ -54,7 +54,7 @@ protected:
 
 TEST_F(PrinterMonitorTestTemperature, TestSingleHotend) {
     expected = { 214.32, 220.0, 114 };
-    EXPECT_EQ(expected, mon.get_hotend_temp(0));
+    EXPECT_EQ(expected, mon.get_hotend_temp());
     EXPECT_EQ(PrinterMonitor::temp_t{}, mon.get_hotend_temp(1));
 }
 
@@ -86,4 +86,22 @@ TEST_F(PrinterMonitorTestTemperature, TestBoard) {
 TEST_F(PrinterMonitorTestTemperature, TestRedundant) {
     expected = { 86.2, 220.00, 0.00 };
     EXPECT_EQ(expected, mon.get_redundant_temp());
+}
+
+TEST_F(PrinterMonitorTestTemperature, TestReset) {
+    mon.reset();
+    std::vector<float> empty;
+
+    EXPECT_EQ(empty, mon.get_position());
+    EXPECT_FALSE(mon.position_known());
+    EXPECT_FALSE(mon.has_leveling());
+    EXPECT_FALSE(mon.is_leveling_active());
+
+    EXPECT_EQ(empty, mon.get_hotend_temp());
+    EXPECT_EQ(empty, mon.get_bed_temp());
+    EXPECT_EQ(empty, mon.get_chamber_temp());
+    EXPECT_EQ(empty, mon.get_probe_temp());
+    EXPECT_EQ(empty, mon.get_cooler_temp());
+    EXPECT_EQ(empty, mon.get_board_temp());
+    EXPECT_EQ(empty, mon.get_redundant_temp());
 }

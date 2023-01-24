@@ -3,6 +3,7 @@
 #include <array>
 #include <tuple>
 #include <sstream>
+#include <optional>
 
 void PrinterMonitor::reset() {
     position_.clear();
@@ -60,12 +61,12 @@ bool PrinterMonitor::parse_position() {
 
 
 bool PrinterMonitor::parse_temperature() {
-    const std::string num_matcher = "(\\d*.?\\d*) \\/(\\d*.?\\d*)";
+    const std::string float_regex = "(\\d*.?\\d*) \\/(\\d*.?\\d*)";
 
     const bool has_multi_hotend = current_line_.find("T0:") != std::string::npos;
 
     // matcher
-    auto match = [&num_matcher, this](char prefix_1, char prefix_2, int hotend_num = -1) -> temp_t {
+    auto match = [&float_regex, this](char prefix_1, char prefix_2, int hotend_num = -1) -> std::optional<temp_t> {
         std::smatch m;
         std::string actual, target, power;
 
@@ -74,7 +75,7 @@ bool PrinterMonitor::parse_temperature() {
         if (hotend_num != -1) {
             ss1 << hotend_num;
         }
-        ss1 << ":" << num_matcher;
+        ss1 << ":" << float_regex;
         std::stringstream ss2;
         ss2 << prefix_2 << "@";
         if (hotend_num != -1) {
@@ -91,32 +92,37 @@ bool PrinterMonitor::parse_temperature() {
             }
         }
         try {
-            return { std::stof(actual), std::stof(target), std::stof(power) };
+            return temp_t{ std::stof(actual), std::stof(target), std::stof(power) };
         } catch (...) {
-            return {};
+            return std::nullopt;
         }
     };
 
-    hotend_temps_.clear();
-    // check multiple hotends
-    int i = 0;
-    while (1) {
-        // push back hotends while they exist
-        auto ret = match('T', ' ', i++);
-        if (ret.size()) {
-            hotend_temps_.push_back(ret);
-        } else {
-            break;
+    if (auto res = match('T', ' ')) {
+        // single hotend
+        hotend_temps_.clear();
+        hotend_temps_.push_back(*res);
+    } else {
+        // multiple hotends
+        bool need_clear = true;
+        // hotend limit 100
+        for (int i = 0; i < 100; ++i) {
+            if (auto ret = match('T', ' ', i)) {
+                if (need_clear) {
+                    need_clear = false;
+                    hotend_temps_.clear();
+                }
+                hotend_temps_.push_back(*ret);
+            }
         }
     }
-    // will only match with single hotend systems
-    hotend_temps_.push_back(match('T', ' '));
-    bed_temp_ = match('B', 'B');
-    chamber_temp_ = match('C', 'C');
-    probe_temp_ = match('P', 'P');
-    cooler_temp_ = match('L', 'L');
-    board_temp_ = match('M', 'M');
-    redundant_temp_ = match('R', 'R');
+
+    bed_temp_ = match('B', 'B').value_or(bed_temp_);
+    chamber_temp_ = match('C', 'C').value_or(chamber_temp_);
+    probe_temp_ = match('P', 'P').value_or(probe_temp_);
+    cooler_temp_ = match('L', 'L').value_or(cooler_temp_);
+    board_temp_ = match('M', 'M').value_or(board_temp_);
+    redundant_temp_ = match('R', 'R').value_or(redundant_temp_);
 
     return true;
 }

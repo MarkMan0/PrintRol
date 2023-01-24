@@ -117,6 +117,15 @@ TEST_F(PrinterMonitorTestTemperature, TestMultiHotend) {
     EXPECT_EQ(expected, mon.get_hotend_temp(2));
 }
 
+TEST_F(PrinterMonitorTestTemperature, TestRemembersValues) {
+    const auto bed_before = mon.get_bed_temp(), he_before = mon.get_hotend_temp();
+    mon.parse_line("echo: something else");
+    mon.parse_line("X:12.0 Y:123.12");
+
+    EXPECT_EQ(bed_before, mon.get_bed_temp());
+    EXPECT_EQ(he_before, mon.get_hotend_temp());
+}
+
 TEST(PrinterMonitorTest, TestCapabilitiesDefaults) {
     PrinterMonitor mon;
     auto caps = mon.get_capabilities();

@@ -37,6 +37,8 @@ target_link_libraries(printrol_qt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 if (WIN32)
     target_link_libraries(printrol_qt PUBLIC WinSerial)
+elseif (UNIX)
+    target_link_libraries(printrol_qt PUBLIC LinuxSerial)
 endif()
 
 set_target_properties(printrol_qt PROPERTIES

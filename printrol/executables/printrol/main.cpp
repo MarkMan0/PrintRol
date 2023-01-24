@@ -5,6 +5,8 @@
 
 #if defined(WIN32)
     #include "WinSerial/WinSerial.h"
+#elif defined(UNIX)
+    #include "LinuxSerial/LinuxSerial.h"
 #endif
 
 int main(int argc, char* argv[]) {
@@ -14,6 +16,9 @@ int main(int argc, char* argv[]) {
 #if defined(WIN32)
     WinSerial wserial;
     serial = &wserial;
+#elif defined(UNIX)
+    LinuxSerial lserial;
+    serial = &lserial;
 #endif
     w.set_serial(serial);
     w.init();

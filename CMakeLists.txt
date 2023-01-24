@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23.0)
+cmake_minimum_required(VERSION 3.16.0)
 
 
 project(PrintRol VERSION 0.1)
@@ -8,6 +8,8 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 if (WIN32)
     add_definitions(-DWIN32)
+elseif (UNIX)
+    add_definitions(-DUNIX)
 endif()
 
 # from QT
@@ -15,7 +17,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_PREFIX_PATH  "C:\\devtools\\Qt\\6.4.2\\msvc2019_64")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)

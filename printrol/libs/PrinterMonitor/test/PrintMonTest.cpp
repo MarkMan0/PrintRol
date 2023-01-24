@@ -116,3 +116,56 @@ TEST_F(PrinterMonitorTestTemperature, TestMultiHotend) {
     expected = { 20.12, 0, 0 };
     EXPECT_EQ(expected, mon.get_hotend_temp(2));
 }
+
+TEST(PrinterMonitorTest, TestCapabilitiesDefaults) {
+    PrinterMonitor mon;
+    auto caps = mon.get_capabilities();
+
+    EXPECT_EQ(std::string(), caps.FIRMWARE_NAME);
+    EXPECT_EQ(std::string(), caps.SOURCE_CODE_URL);
+    EXPECT_EQ(std::string(), caps.PROTOCOL_VERSION);
+    EXPECT_EQ(std::string(), caps.MACHINE_TYPE);
+    EXPECT_EQ(std::string(), caps.UUID);
+    EXPECT_EQ(3, caps.AXIS_COUNT);
+    EXPECT_EQ(false, caps.EXTRUDER_COUNT);
+    EXPECT_EQ(false, caps.PAREN_COMMENTS);
+    EXPECT_EQ(false, caps.GCODE_QUOTED_STRINGS);
+    EXPECT_EQ(false, caps.SERIAL_XON_XOFF);
+    EXPECT_EQ(false, caps.BINARY_FILE_TRANSFER);
+    EXPECT_EQ(false, caps.EEPROM);
+    EXPECT_EQ(false, caps.VOLUMETRIC);
+    EXPECT_EQ(false, caps.AUTOREPORT_POS);
+    EXPECT_EQ(false, caps.AUTOREPORT_TEMP);
+    EXPECT_EQ(false, caps.PROGRESS);
+    EXPECT_EQ(false, caps.PRINT_JOB);
+    EXPECT_EQ(false, caps.AUTOLEVEL);
+    EXPECT_EQ(false, caps.RUNOUT);
+    EXPECT_EQ(false, caps.Z_PROBE);
+    EXPECT_EQ(false, caps.LEVELING_DATA);
+    EXPECT_EQ(false, caps.BUILD_PERCENT);
+    EXPECT_EQ(false, caps.SOFTWARE_POWER);
+    EXPECT_EQ(false, caps.TOGGLE_LIGHTS);
+    EXPECT_EQ(false, caps.CASE_LIGHT_BRIGHTNESS);
+    EXPECT_EQ(false, caps.SPINDLE);
+    EXPECT_EQ(false, caps.LASER);
+    EXPECT_EQ(false, caps.EMERGENCY_PARSER);
+    EXPECT_EQ(false, caps.HOST_ACTION_COMMANDS);
+    EXPECT_EQ(false, caps.PROMPT_SUPPORT);
+    EXPECT_EQ(false, caps.SDCARD);
+    EXPECT_EQ(false, caps.MULTI_VOLUME);
+    EXPECT_EQ(false, caps.REPEAT);
+    EXPECT_EQ(false, caps.SD_WRITE);
+    EXPECT_EQ(false, caps.AUTOREPORT_SD_STATUS);
+    EXPECT_EQ(false, caps.LONG_FILENAME);
+    EXPECT_EQ(false, caps.LFN_WRITE);
+    EXPECT_EQ(false, caps.CUSTOM_FIRMWARE_UPLOAD);
+    EXPECT_EQ(false, caps.EXTENDED_M20);
+    EXPECT_EQ(false, caps.THERMAL_PROTECTION);
+    EXPECT_EQ(false, caps.MOTION_MODES);
+    EXPECT_EQ(false, caps.ARCS);
+    EXPECT_EQ(false, caps.BABYSTEPPING);
+    EXPECT_EQ(false, caps.CHAMBER_TEMPERATURE);
+    EXPECT_EQ(false, caps.COOLER_TEMPERATURE);
+    EXPECT_EQ(false, caps.MEATPACK);
+    EXPECT_EQ(false, caps.CONFIG_EXPORT);
+}

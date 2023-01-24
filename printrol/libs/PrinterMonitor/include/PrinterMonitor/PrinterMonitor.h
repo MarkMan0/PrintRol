@@ -3,6 +3,56 @@
 #include <string_view>
 #include <vector>
 
+struct PrinterCapabilities {
+    std::string FIRMWARE_NAME;
+    std::string SOURCE_CODE_URL;
+    std::string PROTOCOL_VERSION;
+    std::string MACHINE_TYPE;
+    int AXIS_COUNT{ 3 };
+    std::string UUID;
+    int EXTRUDER_COUNT{ 0 };
+    bool PAREN_COMMENTS{ false };
+    bool GCODE_QUOTED_STRINGS{ false };
+    bool SERIAL_XON_XOFF{ false };
+    bool BINARY_FILE_TRANSFER{ false };
+    bool EEPROM{ false };
+    bool VOLUMETRIC{ false };
+    bool AUTOREPORT_POS{ false };
+    bool AUTOREPORT_TEMP{ false };
+    bool PROGRESS{ false };
+    bool PRINT_JOB{ false };
+    bool AUTOLEVEL{ false };
+    bool RUNOUT{ false };
+    bool Z_PROBE{ false };
+    bool LEVELING_DATA{ false };
+    bool BUILD_PERCENT{ false };
+    bool SOFTWARE_POWER{ false };
+    bool TOGGLE_LIGHTS{ false };
+    bool CASE_LIGHT_BRIGHTNESS{ false };
+    bool SPINDLE{ false };
+    bool LASER{ false };
+    bool EMERGENCY_PARSER{ false };
+    bool HOST_ACTION_COMMANDS{ false };
+    bool PROMPT_SUPPORT{ false };
+    bool SDCARD{ false };
+    bool MULTI_VOLUME{ false };
+    bool REPEAT{ false };
+    bool SD_WRITE{ false };
+    bool AUTOREPORT_SD_STATUS{ false };
+    bool LONG_FILENAME{ false };
+    bool LFN_WRITE{ false };
+    bool CUSTOM_FIRMWARE_UPLOAD{ false };
+    bool EXTENDED_M20{ false };
+    bool THERMAL_PROTECTION{ false };
+    bool MOTION_MODES{ false };
+    bool ARCS{ false };
+    bool BABYSTEPPING{ false };
+    bool CHAMBER_TEMPERATURE{ false };
+    bool COOLER_TEMPERATURE{ false };
+    bool MEATPACK{ false };
+    bool CONFIG_EXPORT{ false };
+};
+
 class PrinterMonitor {
 public:
     using temp_t = std::vector<float>;
@@ -65,9 +115,14 @@ public:
         return redundant_temp_;
     }
 
+    PrinterCapabilities get_capabilities() const {
+        return capabilities_;
+    }
+
 private:
     void parse_position();
     void parse_temperature();
+    void parse_capability();
 
     std::string current_line_;
 
@@ -83,4 +138,6 @@ private:
     temp_t cooler_temp_;
     temp_t board_temp_;
     temp_t redundant_temp_;
+
+    PrinterCapabilities capabilities_;
 };

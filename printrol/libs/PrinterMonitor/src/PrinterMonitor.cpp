@@ -6,6 +6,7 @@
 #include <optional>
 
 void PrinterMonitor::reset() {
+    lck_t l(mtx_);
     position_.clear();
     position_known_ = false;
     has_leveling_ = false;
@@ -21,6 +22,7 @@ void PrinterMonitor::reset() {
 }
 
 void PrinterMonitor::parse_line(std::string_view line) {
+    lck_t l(mtx_);
     current_line_ = line;
 
     for (const auto& parser : parsers_) {

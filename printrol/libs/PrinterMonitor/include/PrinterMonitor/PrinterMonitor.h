@@ -2,6 +2,7 @@
 
 #include <string_view>
 #include <vector>
+#include <mutex>
 
 struct PrinterCapabilities {
     std::string FIRMWARE_NAME;
@@ -57,6 +58,7 @@ class PrinterMonitor {
 public:
     using temp_t = std::vector<float>;
     using pos_t = std::vector<float>;
+    using lck_t = std::unique_lock<std::mutex>;
 
     PrinterMonitor() {
         reset();
@@ -72,54 +74,69 @@ public:
 
     // position
     pos_t get_position() const {
+        lck_t l(mtx_);
         return position_;
     }
     bool position_known() const {
+        lck_t l(mtx_);
         return position_known_;
     }
     bool has_leveling() const {
+        lck_t l(mtx_);
         return has_leveling_;
     }
     bool is_leveling_active() const {
+        lck_t l(mtx_);
         return leveling_active_;
     }
 
     // temperature
     bool has_hotend(int index = 0) const {
+        lck_t l(mtx_);
         return hotend_temps_.size() > (index + 1);
     }
     bool has_bed() const {
+        lck_t l(mtx_);
         return bed_temp_.size() > 0;
     }
     bool has_chamber() const {
+        lck_t l(mtx_);
         return chamber_temp_.size() > 0;
     }
     temp_t get_bed_temp() const {
+        lck_t l(mtx_);
         return bed_temp_;
     }
     temp_t get_hotend_temp(int index = 0) const {
+        lck_t l(mtx_);
         if (hotend_temps_.size() < index + 1) {
             return {};
         }
         return hotend_temps_[index];
     }
     temp_t get_chamber_temp() const {
+        lck_t l(mtx_);
         return chamber_temp_;
     }
     temp_t get_probe_temp() const {
+        lck_t l(mtx_);
         return probe_temp_;
     }
     temp_t get_cooler_temp() const {
+        lck_t l(mtx_);
         return cooler_temp_;
     }
     temp_t get_board_temp() const {
+        lck_t l(mtx_);
         return board_temp_;
     }
     temp_t get_redundant_temp() const {
+        lck_t l(mtx_);
         return redundant_temp_;
     }
 
     PrinterCapabilities get_capabilities() const {
+        lck_t l(mtx_);
         return capabilities_;
     }
 
@@ -133,6 +150,7 @@ private:
 
     using parser_t = bool (PrinterMonitor::*)();
     std::vector<parser_t> parsers_;
+    mutable std::mutex mtx_;
 
 
     pos_t position_;

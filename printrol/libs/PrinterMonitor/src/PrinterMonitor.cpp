@@ -25,13 +25,18 @@ void PrinterMonitor::parse_line(std::string_view line) {
 
     for (const auto& parser : parsers_) {
         if ((this->*parser)()) {
-            // break;
+            break;
         }
     }
 }
 
 
 bool PrinterMonitor::parse_position() {
+    // pre-check
+    if (current_line_.size() < 1 || current_line_[0] != 'X') {
+        return false;
+    }
+
     const std::string regex_ending = "([+-]?\\d*.?\\d*).*$";
     std::array<std::string, 4> axis_names = { "X:", "Y:", "Z:", "E:" };
     pos_t pos2;
@@ -54,13 +59,18 @@ bool PrinterMonitor::parse_position() {
 
     if (pos2.size() == 4) {
         position_ = std::move(pos2);
+        return true;
     }
-
-    return true;
+    return false;
 }
 
 
 bool PrinterMonitor::parse_temperature() {
+    // pre-check
+    if (current_line_.find("T:") == std::string::npos && current_line_.find("T0:") == std::string::npos) {
+        return false;
+    }
+
     const std::string float_regex = "(\\d*.?\\d*) \\/(\\d*.?\\d*)";
 
     const bool has_multi_hotend = current_line_.find("T0:") != std::string::npos;
@@ -98,10 +108,13 @@ bool PrinterMonitor::parse_temperature() {
         }
     };
 
+    bool changed = false;
+
     if (auto res = match('T', ' ')) {
         // single hotend
         hotend_temps_.clear();
         hotend_temps_.push_back(*res);
+        changed = true;
     } else {
         // multiple hotends
         bool need_clear = true;
@@ -113,29 +126,49 @@ bool PrinterMonitor::parse_temperature() {
                     hotend_temps_.clear();
                 }
                 hotend_temps_.push_back(*ret);
+                changed = true;
             }
         }
     }
 
-    bed_temp_ = match('B', 'B').value_or(bed_temp_);
-    chamber_temp_ = match('C', 'C').value_or(chamber_temp_);
-    probe_temp_ = match('P', 'P').value_or(probe_temp_);
-    cooler_temp_ = match('L', 'L').value_or(cooler_temp_);
-    board_temp_ = match('M', 'M').value_or(board_temp_);
-    redundant_temp_ = match('R', 'R').value_or(redundant_temp_);
+    auto update = [this, &changed, &match](auto& what, char prefix) {
+        if (auto opt = match(prefix, prefix)) {
+            what = *opt;
+            changed = true;
+        }
+    };
 
-    return true;
+    update(bed_temp_, 'B');
+    update(chamber_temp_, 'C');
+    update(probe_temp_, 'P');
+    update(cooler_temp_, 'L');
+    update(board_temp_, 'M');
+    update(redundant_temp_, 'R');
+
+    return changed;
 }
 
 
 bool PrinterMonitor::parse_capability() {
-    auto match = [this](auto& dest, std::string line) -> void {
+    // pre-check
+    const bool check_line = (current_line_.find("FIRMWARE_NAME") == 0) || (current_line_.find("Cap") == 0);
+    if (not check_line) {
+        return false;
+    }
+
+    bool parsed = false;
+
+    auto match = [this, &parsed](auto& dest, std::string line) -> void {
+        if (parsed) {
+            return;
+        }
         auto off = current_line_.find(line);
         if (off != std::string::npos) {
             auto num_str = current_line_.substr(off + line.size() + 1);
             try {
                 int res = std::stoi(num_str);
                 dest = res;
+                parsed = true;
             } catch (...) {
             }
         }
@@ -158,6 +191,9 @@ bool PrinterMonitor::parse_capability() {
 
 #define _FIND_CAP(WHAT) match(capabilities_.WHAT, #WHAT)
     _FIND_CAP(AXIS_COUNT);
+    // axis count is optional and on the same line as extruder count
+    // if axis count was found, extruder count will be found too
+    parsed = false;
     _FIND_CAP(EXTRUDER_COUNT);
     _FIND_CAP(PAREN_COMMENTS);
     _FIND_CAP(GCODE_QUOTED_STRINGS);

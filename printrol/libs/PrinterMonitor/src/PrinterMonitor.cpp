@@ -23,6 +23,7 @@ void PrinterMonitor::parse_line(std::string_view line) {
     current_line_ = line;
     parse_position();
     parse_temperature();
+    parse_capability();
 }
 
 
@@ -111,4 +112,80 @@ void PrinterMonitor::parse_temperature() {
     cooler_temp_ = match('L', 'L');
     board_temp_ = match('M', 'M');
     redundant_temp_ = match('R', 'R');
+}
+
+
+void PrinterMonitor::parse_capability() {
+    auto match = [this](auto& dest, std::string line) -> void {
+        auto off = current_line_.find(line);
+        if (off != std::string::npos) {
+            auto num_str = current_line_.substr(off + line.size() + 1);
+            try {
+                int res = std::stoi(num_str);
+                dest = res;
+            } catch (...) {
+            }
+        }
+    };
+
+    auto extract_str_cap = [this](std::string& dest, const std::string& what, const std::string& next) -> void {
+        auto off = current_line_.find(what);
+        if (off != std::string::npos) {
+            auto val = current_line_.substr(off + what.size() + 1);
+            dest = val.substr(0, val.find(" " + next));
+        }
+    };
+
+    extract_str_cap(capabilities_.FIRMWARE_NAME, "FIRMWARE_NAME", "SOURCE_CODE_URL");
+    extract_str_cap(capabilities_.SOURCE_CODE_URL, "SOURCE_CODE_URL", "PROTOCOL_VERSION");
+    extract_str_cap(capabilities_.PROTOCOL_VERSION, "PROTOCOL_VERSION", "MACHINE_TYPE");
+    extract_str_cap(capabilities_.MACHINE_TYPE, "MACHINE_TYPE", "EXTRUDER_COUNT");
+    extract_str_cap(capabilities_.UUID, "UUID", "");
+
+
+#define _FIND_CAP(WHAT) match(capabilities_.WHAT, #WHAT)
+    _FIND_CAP(AXIS_COUNT);
+    _FIND_CAP(EXTRUDER_COUNT);
+    _FIND_CAP(PAREN_COMMENTS);
+    _FIND_CAP(GCODE_QUOTED_STRINGS);
+    _FIND_CAP(SERIAL_XON_XOFF);
+    _FIND_CAP(BINARY_FILE_TRANSFER);
+    _FIND_CAP(EEPROM);
+    _FIND_CAP(VOLUMETRIC);
+    _FIND_CAP(AUTOREPORT_POS);
+    _FIND_CAP(AUTOREPORT_TEMP);
+    _FIND_CAP(PROGRESS);
+    _FIND_CAP(PRINT_JOB);
+    _FIND_CAP(AUTOLEVEL);
+    _FIND_CAP(RUNOUT);
+    _FIND_CAP(Z_PROBE);
+    _FIND_CAP(LEVELING_DATA);
+    _FIND_CAP(BUILD_PERCENT);
+    _FIND_CAP(SOFTWARE_POWER);
+    _FIND_CAP(TOGGLE_LIGHTS);
+    _FIND_CAP(CASE_LIGHT_BRIGHTNESS);
+    _FIND_CAP(SPINDLE);
+    _FIND_CAP(LASER);
+    _FIND_CAP(EMERGENCY_PARSER);
+    _FIND_CAP(HOST_ACTION_COMMANDS);
+    _FIND_CAP(PROMPT_SUPPORT);
+    _FIND_CAP(SDCARD);
+    _FIND_CAP(MULTI_VOLUME);
+    _FIND_CAP(REPEAT);
+    _FIND_CAP(SD_WRITE);
+    _FIND_CAP(AUTOREPORT_SD_STATUS);
+    _FIND_CAP(LONG_FILENAME);
+    _FIND_CAP(LFN_WRITE);
+    _FIND_CAP(CUSTOM_FIRMWARE_UPLOAD);
+    _FIND_CAP(EXTENDED_M20);
+    _FIND_CAP(THERMAL_PROTECTION);
+    _FIND_CAP(MOTION_MODES);
+    _FIND_CAP(ARCS);
+    _FIND_CAP(BABYSTEPPING);
+    _FIND_CAP(CHAMBER_TEMPERATURE);
+    _FIND_CAP(COOLER_TEMPERATURE);
+    _FIND_CAP(MEATPACK);
+    _FIND_CAP(CONFIG_EXPORT);
+
+#undef _FIND_CAP
 }

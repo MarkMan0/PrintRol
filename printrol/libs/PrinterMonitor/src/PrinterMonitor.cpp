@@ -240,3 +240,8 @@ bool PrinterMonitor::parse_capability() {
 
     return true;
 }
+
+bool PrinterMonitor::ok_parser() {
+    // ok is frequent, skip other parsers if found
+    return current_line_.size() == 3 && current_line_[0] == 'o' && current_line_[1] == 'k' && current_line_[2] == '\n';
+}

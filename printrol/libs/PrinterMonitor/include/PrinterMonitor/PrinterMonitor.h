@@ -60,6 +60,7 @@ public:
 
     PrinterMonitor() {
         reset();
+        parsers_.push_back(&PrinterMonitor::ok_parser);
         parsers_.push_back(&PrinterMonitor::parse_position);
         parsers_.push_back(&PrinterMonitor::parse_temperature);
         parsers_.push_back(&PrinterMonitor::parse_capability);
@@ -123,6 +124,7 @@ public:
     }
 
 private:
+    bool ok_parser();
     bool parse_position();
     bool parse_temperature();
     bool parse_capability();

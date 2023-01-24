@@ -60,6 +60,9 @@ public:
 
     PrinterMonitor() {
         reset();
+        parsers_.push_back(&PrinterMonitor::parse_position);
+        parsers_.push_back(&PrinterMonitor::parse_temperature);
+        parsers_.push_back(&PrinterMonitor::parse_capability);
     }
 
     void parse_line(std::string_view line);
@@ -120,11 +123,15 @@ public:
     }
 
 private:
-    void parse_position();
-    void parse_temperature();
-    void parse_capability();
+    bool parse_position();
+    bool parse_temperature();
+    bool parse_capability();
 
     std::string current_line_;
+
+    using parser_t = bool (PrinterMonitor::*)();
+    std::vector<parser_t> parsers_;
+
 
     pos_t position_;
     bool position_known_;

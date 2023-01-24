@@ -21,13 +21,16 @@ void PrinterMonitor::reset() {
 
 void PrinterMonitor::parse_line(std::string_view line) {
     current_line_ = line;
-    parse_position();
-    parse_temperature();
-    parse_capability();
+
+    for (const auto& parser : parsers_) {
+        if ((this->*parser)()) {
+            // break;
+        }
+    }
 }
 
 
-void PrinterMonitor::parse_position() {
+bool PrinterMonitor::parse_position() {
     const std::string regex_ending = "([+-]?\\d*.?\\d*).*$";
     std::array<std::string, 4> axis_names = { "X:", "Y:", "Z:", "E:" };
     pos_t pos2;
@@ -51,10 +54,12 @@ void PrinterMonitor::parse_position() {
     if (pos2.size() == 4) {
         position_ = std::move(pos2);
     }
+
+    return true;
 }
 
 
-void PrinterMonitor::parse_temperature() {
+bool PrinterMonitor::parse_temperature() {
     const std::string num_matcher = "(\\d*.?\\d*) \\/(\\d*.?\\d*)";
 
     const bool has_multi_hotend = current_line_.find("T0:") != std::string::npos;
@@ -112,10 +117,12 @@ void PrinterMonitor::parse_temperature() {
     cooler_temp_ = match('L', 'L');
     board_temp_ = match('M', 'M');
     redundant_temp_ = match('R', 'R');
+
+    return true;
 }
 
 
-void PrinterMonitor::parse_capability() {
+bool PrinterMonitor::parse_capability() {
     auto match = [this](auto& dest, std::string line) -> void {
         auto off = current_line_.find(line);
         if (off != std::string::npos) {
@@ -188,4 +195,6 @@ void PrinterMonitor::parse_capability() {
     _FIND_CAP(CONFIG_EXPORT);
 
 #undef _FIND_CAP
+
+    return true;
 }

@@ -171,60 +171,59 @@ TEST(PrinterMonitorTest, TestCapabilitiesDefaults) {
 }
 
 
-struct PrinterMonitorTestCapabilities : public ::testing::Test {
-protected:
+
+TEST(PrinterMonitorTest, TestAllCapabilities) {
     PrinterMonitor mon;
+    const std::vector<std::string> lines = {
+        "FIRMWARE_NAME:Marlin bugfix-2.1.x (Jan 23 2023 23:25:27) SOURCE_CODE_URL:github.com/MarlinFirmware/Marlin "
+        "PROTOCOL_VERSION:1.0 MACHINE_TYPE:3D Printer EXTRUDER_COUNT:1 AXIS_COUNT:5 "
+        "UUID:cede2a2f-41a2-4748-9b12-c55c62f367ff",
+        "Cap:PAREN_COMMENTS:1",
+        "Cap:GCODE_QUOTED_STRINGS:1",
+        "Cap:SERIAL_XON_XOFF:1",
+        "Cap:BINARY_FILE_TRANSFER:1",
+        "Cap:EEPROM:1",
+        "Cap:VOLUMETRIC:1",
+        "Cap:AUTOREPORT_POS:1",
+        "Cap:AUTOREPORT_TEMP:1",
+        "Cap:PROGRESS:1",
+        "Cap:PRINT_JOB:1",
+        "Cap:AUTOLEVEL:1",
+        "Cap:RUNOUT:1",
+        "Cap:Z_PROBE:1",
+        "Cap:LEVELING_DATA:1",
+        "Cap:BUILD_PERCENT:1",
+        "Cap:SOFTWARE_POWER:1",
+        "Cap:TOGGLE_LIGHTS:1",
+        "Cap:CASE_LIGHT_BRIGHTNESS:1",
+        "Cap:SPINDLE:1",
+        "Cap:LASER:1",
+        "Cap:EMERGENCY_PARSER:1",
+        "Cap:HOST_ACTION_COMMANDS:1",
+        "Cap:PROMPT_SUPPORT:1",
+        "Cap:SDCARD:1",
+        "Cap:MULTI_VOLUME:1",
+        "Cap:REPEAT:1",
+        "Cap:SD_WRITE:1",
+        "Cap:AUTOREPORT_SD_STATUS:1",
+        "Cap:LONG_FILENAME:1",
+        "Cap:LFN_WRITE:1",
+        "Cap:CUSTOM_FIRMWARE_UPLOAD:1",
+        "Cap:EXTENDED_M20:1",
+        "Cap:THERMAL_PROTECTION:1",
+        "Cap:MOTION_MODES:1",
+        "Cap:ARCS:1",
+        "Cap:BABYSTEPPING:1",
+        "Cap:CHAMBER_TEMPERATURE:1",
+        "Cap:COOLER_TEMPERATURE:1",
+        "Cap:MEATPACK:1",
+        "Cap:CONFIG_EXPORT:1",
+    };
 
-    void SetUp() override {
-        std::vector<std::string> lines = {
-            "FIRMWARE_NAME:Marlin bugfix-2.1.x (Jan 23 2023 23:25:27) SOURCE_CODE_URL:github.com/MarlinFirmware/Marlin "
-            "PROTOCOL_VERSION:1.0 MACHINE_TYPE:3D Printer EXTRUDER_COUNT:1 AXIS_COUNT:5 "
-            "UUID:cede2a2f-41a2-4748-9b12-c55c62f367ff",
-            "Cap:PAREN_COMMENTS:1",
-            "Cap:GCODE_QUOTED_STRINGS:1",
-            "Cap:SERIAL_XON_XOFF:1",
-            "Cap:BINARY_FILE_TRANSFER:1",
-            "Cap:EEPROM:1",
-            "Cap:VOLUMETRIC:1",
-            "Cap:AUTOREPORT_POS:1",
-            "Cap:AUTOREPORT_TEMP:1",
-            "Cap:PROGRESS:1",
-            "Cap:PRINT_JOB:1",
-            "Cap:AUTOLEVEL:1",
-            "Cap:RUNOUT:1",
-            "Cap:Z_PROBE:1",
-            "Cap:LEVELING_DATA:1",
-            "Cap:BUILD_PERCENT:1",
-            "Cap:SOFTWARE_POWER:1",
-            "Cap:TOGGLE_LIGHTS:1",
-            "Cap:CASE_LIGHT_BRIGHTNESS:1",
-            "Cap:SPINDLE:1",
-            "Cap:LASER:1",
-            "Cap:EMERGENCY_PARSER:1",
-            "Cap:HOST_ACTION_COMMANDS:1",
-            "Cap:PROMPT_SUPPORT:1",
-            "Cap:SDCARD:1",
-            "Cap:MULTI_VOLUME:1",
-            "Cap:REPEAT:1",
-            "Cap:SD_WRITE:1",
-            "Cap:AUTOREPORT_SD_STATUS:1",
-            "Cap:LONG_FILENAME:1",
-            "Cap:LFN_WRITE:1",
-            "Cap:CUSTOM_FIRMWARE_UPLOAD:1",
-            "Cap:EXTENDED_M20:1",
-            "Cap:THERMAL_PROTECTION:1",
-            "Cap:MOTION_MODES:1",
-            "Cap:ARCS:1",
-            "Cap:BABYSTEPPING:1",
-            "Cap:CHAMBER_TEMPERATURE:1",
-            "Cap:COOLER_TEMPERATURE:1",
-            "Cap:MEATPACK:1",
-            "Cap:CONFIG_EXPORT:1",
-        };
+    for (const auto& line : lines) {
+        mon.parse_line(line);
     }
-};
 
-TEST_F(PrinterMonitorTestCapabilities, TestAllCapabilities) {
     const auto caps = mon.get_capabilities();
 
     EXPECT_EQ(std::string("Marlin bugfix-2.1.x (Jan 23 2023 23:25:27)"), caps.FIRMWARE_NAME);

@@ -21,15 +21,16 @@ void PrinterMonitor::reset() {
     redundant_temp_.clear();
 }
 
-void PrinterMonitor::parse_line(std::string_view line) {
+bool PrinterMonitor::parse_line(std::string_view line) {
     lck_t l(mtx_);
     current_line_ = line;
 
     for (const auto& parser : parsers_) {
         if ((this->*parser)()) {
-            break;
+            return true;
         }
     }
+    return false;
 }
 
 

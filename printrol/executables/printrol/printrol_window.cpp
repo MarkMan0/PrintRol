@@ -14,6 +14,7 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(&comm_thrd_, &CommThread::byte_received, this, &PrintRolWindow::byte_received);
     connect(ui->portSelectBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
     connect(ui->portBaudComboBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
+    connect(&comm_thrd_, &CommThread::printer_status_changed, this, &PrintRolWindow::printer_status_change);
 
     const auto baud_list = { 9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000, 1000000 };
 
@@ -103,5 +104,34 @@ void PrintRolWindow::byte_received(std::uint8_t b) {
 void PrintRolWindow::enter_on_combobox() {
     if (ui->portSelectBox->currentText().length() > 0) {
         connect_to_port();
+    }
+}
+
+void PrintRolWindow::printer_status_change() {
+    const auto& printer = comm_thrd_.get_printer();
+    {
+        const auto pos = printer.get_position();
+        if (pos.size() >= 4) {
+            ui->xPosLabel->setText(QString("X:") + QString::number(pos[0]));
+            ui->yPosLabel->setText(QString("Y:") + QString::number(pos[1]));
+            ui->zPosLabel->setText(QString("Z:") + QString::number(pos[2]));
+            ui->ePosLabel->setText(QString("E:") + QString::number(pos[3]));
+        }
+    }
+    {
+        const auto h0_temp = printer.get_hotend_temp();
+        if (h0_temp.size() >= 3) {
+            ui->eTempAct->setText(QString::number(h0_temp[0]));
+            ui->eTempSet->setText(QString::number(h0_temp[1]));
+            ui->eTempPower->setText(QString::number(static_cast<int>(h0_temp[2])));
+        }
+    }
+    {
+        const auto bed_temp = printer.get_bed_temp();
+        if (bed_temp.size() >= 3) {
+            ui->bedTempAct->setText(QString::number(bed_temp[0]));
+            ui->bedTempSet->setText(QString::number(bed_temp[1]));
+            ui->bedTempPower->setText(QString::number(static_cast<int>(bed_temp[2])));
+        }
     }
 }

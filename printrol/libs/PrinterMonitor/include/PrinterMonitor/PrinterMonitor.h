@@ -68,7 +68,7 @@ public:
         parsers_.push_back(&PrinterMonitor::parse_capability);
     }
 
-    void parse_line(std::string_view line);
+    bool parse_line(std::string_view line);
 
     void reset();
 

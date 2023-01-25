@@ -3,6 +3,9 @@
 #include <QThread>
 #include <QAtomicInt>
 #include <ISerial/ISerial.h>
+#include <PrinterMonitor/PrinterMonitor.h>
+#include <string>
+
 
 class CommThread : public QThread {
     Q_OBJECT
@@ -20,8 +23,16 @@ public:
         serial_ = serial;
     }
 
+    PrinterMonitor& get_printer() {
+        return mon_;
+    }
+    const PrinterMonitor& get_printer() const {
+        return mon_;
+    }
+
 signals:
     void byte_received(std::uint8_t);
+    void printer_status_changed();
 
 protected:
     void run() override {
@@ -46,12 +57,21 @@ private:
 
             if (serial_->read(&b, 1) == 1) {
                 emit byte_received(b);
+                line_buffer_ += static_cast<char>(b);
+                if (b == '\n') {
+                    if (mon_.parse_line(line_buffer_)) {
+                        emit printer_status_changed();
+                    }
+                    line_buffer_.clear();
+                }
             } else {
                 QThread::msleep(100);
             }
         }
     }
 
+    std::string line_buffer_;
     ISerial* serial_{ nullptr };
     QAtomicInt abort_{ 0 }, running_{ 0 };
+    PrinterMonitor mon_;
 };

@@ -33,7 +33,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(printrol_qt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(printrol_qt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets PrinterMonitor)
 
 if (WIN32)
     target_link_libraries(printrol_qt PUBLIC WinSerial)

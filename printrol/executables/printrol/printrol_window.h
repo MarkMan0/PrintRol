@@ -34,6 +34,7 @@ private slots:
     void send_to_printer(const QString& str);
     void byte_received(std::uint8_t);
     void enter_on_combobox();
+    void printer_status_change();
 
 private:
     Ui::PrintRolWindow* ui;

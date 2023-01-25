@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <QScrollBar>
 
 PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::PrintRolWindow) {
     ui->setupUi(this);
@@ -103,7 +104,13 @@ void PrintRolWindow::send_to_printer(const QString& qstr) {
 }
 
 void PrintRolWindow::line_received(std::string str) {
+    auto& bar = *ui->historyTextEdit->verticalScrollBar();
+    bool scroll = bar.maximum() == bar.sliderPosition();
     ui->historyTextEdit->insertPlainText(QString::fromStdString(str));
+
+    if (scroll) {
+        bar.setSliderPosition(bar.maximum());
+    }
 }
 
 void PrintRolWindow::enter_on_combobox() {

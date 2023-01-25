@@ -4,6 +4,7 @@
 #include <vector>
 #include <mutex>
 #include <optional>
+#include <chrono>
 
 struct PrinterCapabilities {
     std::string FIRMWARE_NAME;
@@ -147,6 +148,8 @@ public:
         return capabilities_;
     }
 
+    std::string request_from_printer();
+
 private:
     bool ok_parser();
     bool parse_position();
@@ -159,6 +162,7 @@ private:
     std::vector<parser_t> parsers_;
     mutable std::mutex mtx_;
 
+    std::chrono::steady_clock::time_point last_position_, last_temperature_, last_request_;
 
     pos_t position_;
     bool position_known_;

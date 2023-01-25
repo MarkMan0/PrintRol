@@ -63,6 +63,7 @@ bool PrinterMonitor::parse_position() {
 
     if (pos2.size() == 4) {
         position_ = std::move(pos2);
+        last_position_ = std::chrono::steady_clock::now();
         return true;
     }
     return false;
@@ -148,6 +149,10 @@ bool PrinterMonitor::parse_temperature() {
     update(cooler_temp_, 'L');
     update(board_temp_, 'M');
     update(redundant_temp_, 'R');
+
+    if (changed) {
+        last_temperature_ = std::chrono::steady_clock::now();
+    }
 
     return changed;
 }
@@ -251,4 +256,34 @@ bool PrinterMonitor::parse_capability() {
 bool PrinterMonitor::ok_parser() {
     // ok is frequent, skip other parsers if found
     return current_line_.size() == 3 && current_line_[0] == 'o' && current_line_[1] == 'k' && current_line_[2] == '\n';
+}
+
+
+std::string PrinterMonitor::request_from_printer() {
+    using namespace std::chrono_literals;
+
+    if (std::chrono::steady_clock::now() - last_request_ < 1s) {
+        return "";
+    }
+    last_request_ = std::chrono::steady_clock::now();
+
+    if (not capabilities_) {
+        return "M115\n";
+    }
+
+    if (std::chrono::steady_clock::now() - last_temperature_ > 5s) {
+        if (capabilities_ && capabilities_->AUTOREPORT_TEMP) {
+            return "M155 S1\n";
+        } else {
+            return "M105\n";
+        }
+    }
+
+    if (std::chrono::steady_clock::now() - last_position_ > 10s) {
+        if (capabilities_ && capabilities_->AUTOREPORT_POS) {
+            return "M154 S5\n";
+        } else {
+            return "M114\n";
+        }
+    }
 }

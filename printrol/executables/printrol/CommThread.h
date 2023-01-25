@@ -55,6 +55,11 @@ private:
                 return;
             }
 
+            std::string s = mon_.request_from_printer();
+            if (s.size()) {
+                serial_->write(s.c_str(), s.size());
+            }
+
             if (serial_->read(&b, 1) == 1) {
                 line_buffer_ += static_cast<char>(b);
                 if (b == '\n') {

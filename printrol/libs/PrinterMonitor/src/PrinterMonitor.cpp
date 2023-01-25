@@ -286,4 +286,6 @@ std::string PrinterMonitor::request_from_printer() {
             return "M114\n";
         }
     }
+
+    return "";
 }

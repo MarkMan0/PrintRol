@@ -3,6 +3,7 @@
 #include <string_view>
 #include <vector>
 #include <mutex>
+#include <optional>
 
 struct PrinterCapabilities {
     std::string FIRMWARE_NAME;
@@ -54,9 +55,15 @@ struct PrinterCapabilities {
     bool CONFIG_EXPORT{ false };
 };
 
+
+struct PrinterTemperature {
+    float actual{ 0 }, set{ 0 };
+    int power{ 0 };
+};
+
 class PrinterMonitor {
 public:
-    using temp_t = std::vector<float>;
+    using temp_t = PrinterTemperature;
     using pos_t = std::vector<float>;
     using lck_t = std::unique_lock<std::mutex>;
 
@@ -97,40 +104,40 @@ public:
     }
     bool has_bed() const {
         lck_t l(mtx_);
-        return bed_temp_.size() > 0;
+        return bed_temp_.has_value();
     }
     bool has_chamber() const {
         lck_t l(mtx_);
-        return chamber_temp_.size() > 0;
+        return chamber_temp_.has_value();
     }
-    temp_t get_bed_temp() const {
+    std::optional<temp_t> get_bed_temp() const {
         lck_t l(mtx_);
         return bed_temp_;
     }
-    temp_t get_hotend_temp(int index = 0) const {
+    std::optional<temp_t> get_hotend_temp(int index = 0) const {
         lck_t l(mtx_);
         if (hotend_temps_.size() < index + 1) {
-            return {};
+            return std::nullopt;
         }
         return hotend_temps_[index];
     }
-    temp_t get_chamber_temp() const {
+    std::optional<temp_t> get_chamber_temp() const {
         lck_t l(mtx_);
         return chamber_temp_;
     }
-    temp_t get_probe_temp() const {
+    std::optional<temp_t> get_probe_temp() const {
         lck_t l(mtx_);
         return probe_temp_;
     }
-    temp_t get_cooler_temp() const {
+    std::optional<temp_t> get_cooler_temp() const {
         lck_t l(mtx_);
         return cooler_temp_;
     }
-    temp_t get_board_temp() const {
+    std::optional<temp_t> get_board_temp() const {
         lck_t l(mtx_);
         return board_temp_;
     }
-    temp_t get_redundant_temp() const {
+    std::optional<temp_t> get_redundant_temp() const {
         lck_t l(mtx_);
         return redundant_temp_;
     }
@@ -159,12 +166,12 @@ private:
     bool leveling_active_;
 
     std::vector<temp_t> hotend_temps_;
-    temp_t bed_temp_;
-    temp_t chamber_temp_;
-    temp_t probe_temp_;
-    temp_t cooler_temp_;
-    temp_t board_temp_;
-    temp_t redundant_temp_;
+    std::optional<temp_t> bed_temp_;
+    std::optional<temp_t> chamber_temp_;
+    std::optional<temp_t> probe_temp_;
+    std::optional<temp_t> cooler_temp_;
+    std::optional<temp_t> board_temp_;
+    std::optional<temp_t> redundant_temp_;
 
     PrinterCapabilities capabilities_;
 };

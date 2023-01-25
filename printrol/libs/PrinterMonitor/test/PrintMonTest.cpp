@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include "PrinterMonitor/PrinterMonitor.h"
 
-
+bool operator==(const PrinterMonitor::temp_t& l, const PrinterMonitor::temp_t& r) {
+    return l.actual == r.actual && l.set == r.set && l.power == r.power;
+}
 
 TEST(PrinterMonitorTest, ParsePosition) {
     PrinterMonitor mon;
@@ -54,8 +56,10 @@ protected:
 
 TEST_F(PrinterMonitorTestTemperature, TestSingleHotend) {
     expected = { 214.32, 220.0, 114 };
-    EXPECT_EQ(expected, mon.get_hotend_temp());
-    EXPECT_EQ(PrinterMonitor::temp_t{}, mon.get_hotend_temp(1));
+    auto res = mon.get_hotend_temp();
+    ASSERT_TRUE(res.has_value());
+    EXPECT_EQ(expected, *res);
+    EXPECT_FALSE(mon.get_hotend_temp(1).has_value());
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestBed) {
@@ -69,7 +73,7 @@ TEST_F(PrinterMonitorTestTemperature, TestChamber) {
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestProbe) {
-    expected = { 20.41, 25.14, 0.00 };
+    expected = { 20.41, 25.14, 0 };
     EXPECT_EQ(expected, mon.get_probe_temp());
 }
 
@@ -79,31 +83,30 @@ TEST_F(PrinterMonitorTestTemperature, TestCooler) {
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestBoard) {
-    expected = { 26.34, 0.00, 0.00 };
+    expected = { 26.34, 0.00, 0 };
     EXPECT_EQ(expected, mon.get_board_temp());
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestRedundant) {
-    expected = { 86.2, 220.00, 0.00 };
+    expected = { 86.2, 220.00, 0 };
     EXPECT_EQ(expected, mon.get_redundant_temp());
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestReset) {
     mon.reset();
-    std::vector<float> empty;
 
-    EXPECT_EQ(empty, mon.get_position());
+    EXPECT_EQ(PrinterMonitor::pos_t(), mon.get_position());
     EXPECT_FALSE(mon.position_known());
     EXPECT_FALSE(mon.has_leveling());
     EXPECT_FALSE(mon.is_leveling_active());
 
-    EXPECT_EQ(empty, mon.get_hotend_temp());
-    EXPECT_EQ(empty, mon.get_bed_temp());
-    EXPECT_EQ(empty, mon.get_chamber_temp());
-    EXPECT_EQ(empty, mon.get_probe_temp());
-    EXPECT_EQ(empty, mon.get_cooler_temp());
-    EXPECT_EQ(empty, mon.get_board_temp());
-    EXPECT_EQ(empty, mon.get_redundant_temp());
+    EXPECT_FALSE(mon.get_hotend_temp().has_value());
+    EXPECT_FALSE(mon.get_bed_temp().has_value());
+    EXPECT_FALSE(mon.get_chamber_temp().has_value());
+    EXPECT_FALSE(mon.get_probe_temp().has_value());
+    EXPECT_FALSE(mon.get_cooler_temp().has_value());
+    EXPECT_FALSE(mon.get_board_temp().has_value());
+    EXPECT_FALSE(mon.get_redundant_temp().has_value());
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestMultiHotend) {
@@ -118,7 +121,8 @@ TEST_F(PrinterMonitorTestTemperature, TestMultiHotend) {
 }
 
 TEST_F(PrinterMonitorTestTemperature, TestRemembersValues) {
-    const auto bed_before = mon.get_bed_temp(), he_before = mon.get_hotend_temp();
+    const auto bed_before = mon.get_bed_temp();
+    const auto he_before = mon.get_hotend_temp();
     mon.parse_line("echo: something else");
     mon.parse_line("X:12.0 Y:123.12");
 

@@ -13,12 +13,12 @@ void PrinterMonitor::reset() {
     leveling_active_ = false;
 
     hotend_temps_.clear();
-    bed_temp_.clear();
-    chamber_temp_.clear();
-    probe_temp_.clear();
-    cooler_temp_.clear();
-    board_temp_.clear();
-    redundant_temp_.clear();
+    bed_temp_.reset();
+    chamber_temp_.reset();
+    probe_temp_.reset();
+    cooler_temp_.reset();
+    board_temp_.reset();
+    redundant_temp_.reset();
 }
 
 bool PrinterMonitor::parse_line(std::string_view line) {
@@ -105,7 +105,7 @@ bool PrinterMonitor::parse_temperature() {
             }
         }
         try {
-            return temp_t{ std::stof(actual), std::stof(target), std::stof(power) };
+            return temp_t{ std::stof(actual), std::stof(target), std::stoi(power) };
         } catch (...) {
             return std::nullopt;
         }

@@ -117,18 +117,18 @@ void PrintRolWindow::printer_status_change() {
     }
     {
         const auto h0_temp = printer.get_hotend_temp();
-        if (h0_temp.size() >= 3) {
-            ui->eTempAct->setText(QString::number(h0_temp[0]));
-            ui->eTempSet->setText(QString::number(h0_temp[1]));
-            ui->eTempPower->setText(QString::number(static_cast<int>(h0_temp[2])));
+        if (h0_temp.has_value()) {
+            ui->eTempAct->setText(QString::number(h0_temp->actual));
+            ui->eTempSet->setText(QString::number(h0_temp->set));
+            ui->eTempPower->setText(QString::number(h0_temp->power));
         }
     }
     {
         const auto bed_temp = printer.get_bed_temp();
-        if (bed_temp.size() >= 3) {
-            ui->bedTempAct->setText(QString::number(bed_temp[0]));
-            ui->bedTempSet->setText(QString::number(bed_temp[1]));
-            ui->bedTempPower->setText(QString::number(static_cast<int>(bed_temp[2])));
+        if (bed_temp.has_value()) {
+            ui->bedTempAct->setText(QString::number(bed_temp->actual));
+            ui->bedTempSet->setText(QString::number(bed_temp->set));
+            ui->bedTempPower->setText(QString::number(bed_temp->power));
         }
     }
 }

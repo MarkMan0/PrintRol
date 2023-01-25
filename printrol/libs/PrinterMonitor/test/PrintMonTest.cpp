@@ -132,7 +132,9 @@ TEST_F(PrinterMonitorTestTemperature, TestRemembersValues) {
 
 TEST(PrinterMonitorTest, TestCapabilitiesDefaults) {
     PrinterMonitor mon;
-    auto caps = mon.get_capabilities();
+    EXPECT_FALSE(mon.get_capabilities().has_value());
+
+    auto caps = PrinterCapabilities();
 
     EXPECT_EQ(std::string(), caps.FIRMWARE_NAME);
     EXPECT_EQ(std::string(), caps.SOURCE_CODE_URL);
@@ -237,7 +239,9 @@ TEST(PrinterMonitorTest, TestAllCapabilities) {
         mon.parse_line(line);
     }
 
-    const auto caps = mon.get_capabilities();
+    const auto opt_caps = mon.get_capabilities();
+    ASSERT_TRUE(opt_caps.has_value());
+    auto caps = opt_caps.value();
 
     EXPECT_EQ(std::string("Marlin bugfix-2.1.x (Jan 23 2023 23:25:27)"), caps.FIRMWARE_NAME);
     EXPECT_EQ(std::string("github.com/MarlinFirmware/Marlin"), caps.SOURCE_CODE_URL);

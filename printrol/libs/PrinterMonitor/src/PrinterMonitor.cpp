@@ -19,6 +19,7 @@ void PrinterMonitor::reset() {
     cooler_temp_.reset();
     board_temp_.reset();
     redundant_temp_.reset();
+    capabilities_.reset();
 }
 
 bool PrinterMonitor::parse_line(std::string_view line) {
@@ -158,6 +159,9 @@ bool PrinterMonitor::parse_capability() {
     if (not check_line) {
         return false;
     }
+    if (not capabilities_.has_value()) {
+        capabilities_ = PrinterCapabilities();
+    }
 
     bool parsed = false;
 
@@ -185,14 +189,14 @@ bool PrinterMonitor::parse_capability() {
         }
     };
 
-    extract_str_cap(capabilities_.FIRMWARE_NAME, "FIRMWARE_NAME", "SOURCE_CODE_URL");
-    extract_str_cap(capabilities_.SOURCE_CODE_URL, "SOURCE_CODE_URL", "PROTOCOL_VERSION");
-    extract_str_cap(capabilities_.PROTOCOL_VERSION, "PROTOCOL_VERSION", "MACHINE_TYPE");
-    extract_str_cap(capabilities_.MACHINE_TYPE, "MACHINE_TYPE", "EXTRUDER_COUNT");
-    extract_str_cap(capabilities_.UUID, "UUID", "");
+    extract_str_cap(capabilities_->FIRMWARE_NAME, "FIRMWARE_NAME", "SOURCE_CODE_URL");
+    extract_str_cap(capabilities_->SOURCE_CODE_URL, "SOURCE_CODE_URL", "PROTOCOL_VERSION");
+    extract_str_cap(capabilities_->PROTOCOL_VERSION, "PROTOCOL_VERSION", "MACHINE_TYPE");
+    extract_str_cap(capabilities_->MACHINE_TYPE, "MACHINE_TYPE", "EXTRUDER_COUNT");
+    extract_str_cap(capabilities_->UUID, "UUID", "");
 
 
-#define _FIND_CAP(WHAT) match(capabilities_.WHAT, #WHAT)
+#define _FIND_CAP(WHAT) match(capabilities_->WHAT, #WHAT)
     _FIND_CAP(AXIS_COUNT);
     // axis count is optional and on the same line as extruder count
     // if axis count was found, extruder count will be found too

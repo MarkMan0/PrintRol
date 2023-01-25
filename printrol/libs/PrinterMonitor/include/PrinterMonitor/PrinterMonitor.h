@@ -142,7 +142,7 @@ public:
         return redundant_temp_;
     }
 
-    PrinterCapabilities get_capabilities() const {
+    std::optional<PrinterCapabilities> get_capabilities() const {
         lck_t l(mtx_);
         return capabilities_;
     }
@@ -173,5 +173,5 @@ private:
     std::optional<temp_t> board_temp_;
     std::optional<temp_t> redundant_temp_;
 
-    PrinterCapabilities capabilities_;
+    std::optional<PrinterCapabilities> capabilities_;
 };

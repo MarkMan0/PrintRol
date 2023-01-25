@@ -27,7 +27,6 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
 
 void PrintRolWindow::init() {
     comm_thrd_.set_serial(serial_);
-    comm_thrd_.start(QThread::NormalPriority);
 
     refresh_ports();
     update_port_label();
@@ -61,11 +60,20 @@ void PrintRolWindow::connect_to_port() {
     }
 
     serial_->open(current_port.toStdWString(), baud);
+
+    if (comm_thrd_.isRunning()) {
+        comm_thrd_.abort();
+        while (comm_thrd_.isRunning()) {
+        }
+    }
+    comm_thrd_.start(QThread::NormalPriority);
+
     update_port_label();
 }
 
 void PrintRolWindow::disconnect_port() {
     serial_->close();
+    comm_thrd_.abort();
     update_port_label();
 }
 

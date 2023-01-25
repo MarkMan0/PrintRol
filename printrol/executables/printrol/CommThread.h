@@ -30,6 +30,10 @@ public:
         return mon_;
     }
 
+    void abort() {
+        abort_ = 1;
+    }
+
 signals:
     void line_received(std::string);
     void printer_status_changed();
@@ -37,7 +41,9 @@ signals:
 protected:
     void run() override {
         running_ = 1;
+        mon_.reset();
         inner_run();
+        abort_ = 0;
         running_ = 0;
     }
 

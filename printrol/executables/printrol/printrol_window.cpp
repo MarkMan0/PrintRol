@@ -11,7 +11,7 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(ui->portConnectButton, &QPushButton::clicked, this, &PrintRolWindow::connect_to_port);
     connect(ui->portDisconnectButton, &QPushButton::clicked, this, &PrintRolWindow::disconnect_port);
     connect(ui->inputLineEdit, &QLineEdit::returnPressed, this, &PrintRolWindow::user_txt_input);
-    connect(&comm_thrd_, &CommThread::byte_received, this, &PrintRolWindow::byte_received);
+    connect(&comm_thrd_, &CommThread::line_received, this, &PrintRolWindow::line_received);
     connect(ui->portSelectBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
     connect(ui->portBaudComboBox->lineEdit(), &QLineEdit::returnPressed, this, &PrintRolWindow::enter_on_combobox);
     connect(&comm_thrd_, &CommThread::printer_status_changed, this, &PrintRolWindow::printer_status_change);
@@ -94,11 +94,8 @@ void PrintRolWindow::send_to_printer(const QString& qstr) {
     serial_->write(stdstr.c_str(), stdstr.length());
 }
 
-void PrintRolWindow::byte_received(std::uint8_t b) {
-    char c = static_cast<char>(b);
-    QString str;
-    str += c;
-    ui->historyTextEdit->insertPlainText(str);
+void PrintRolWindow::line_received(std::string str) {
+    ui->historyTextEdit->insertPlainText(QString::fromStdString(str));
 }
 
 void PrintRolWindow::enter_on_combobox() {

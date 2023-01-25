@@ -32,7 +32,7 @@ private slots:
     void update_port_label();
     void user_txt_input();
     void send_to_printer(const QString& str);
-    void byte_received(std::uint8_t);
+    void line_received(std::string);
     void enter_on_combobox();
     void printer_status_change();
 

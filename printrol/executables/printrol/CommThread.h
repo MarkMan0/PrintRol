@@ -31,7 +31,7 @@ public:
     }
 
 signals:
-    void byte_received(std::uint8_t);
+    void line_received(std::string);
     void printer_status_changed();
 
 protected:
@@ -56,9 +56,9 @@ private:
             }
 
             if (serial_->read(&b, 1) == 1) {
-                emit byte_received(b);
                 line_buffer_ += static_cast<char>(b);
                 if (b == '\n') {
+                    emit line_received(line_buffer_);
                     if (mon_.parse_line(line_buffer_)) {
                         emit printer_status_changed();
                     }

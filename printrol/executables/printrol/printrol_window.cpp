@@ -24,6 +24,9 @@ PrintRolWindow::PrintRolWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui
     }
 
     ui->portBaudComboBox->setCurrentIndex(5);
+
+    filter_.add_filter(LineFilter::temperature_regex());
+    filter_.add_filter(LineFilter::position_regex());
 }
 
 void PrintRolWindow::init() {
@@ -104,6 +107,10 @@ void PrintRolWindow::send_to_printer(const QString& qstr) {
 }
 
 void PrintRolWindow::line_received(std::string str) {
+    if (not filter_.check(str)) {
+        return;
+    }
+
     auto& bar = *ui->historyTextEdit->verticalScrollBar();
     bool scroll = bar.maximum() == bar.sliderPosition();
     ui->historyTextEdit->insertPlainText(QString::fromStdString(str));

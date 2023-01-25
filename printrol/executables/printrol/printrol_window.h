@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <ISerial/ISerial.h>
 #include "CommThread.h"
+#include <LineFilter/LineFilter.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -40,5 +41,6 @@ private:
     Ui::PrintRolWindow* ui;
     ISerial* serial_;
     CommThread comm_thrd_;
+    LineFilter filter_;
 };
 #endif  // PRINTROLWINDOW_H
